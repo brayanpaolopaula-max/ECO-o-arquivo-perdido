@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <title>ECO: O Arquivo Perdido</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- FILTROS DE REALISMO ATMOSFÉRICO (VIGNETTE & FILM GRAIN) -->
+    <div class="cinematic-vignette"></div>
+    <div class="film-grain"></div>
+
+    <!-- =========================================
+         MENU INICIAL
+    ========================================= -->
+    <div id="menu" class="menu">
+        <div class="menu-content">
+            <p class="project">PROJETO DE INVESTIGAÇÃO</p>
+            <h1>ECO</h1>
+            <h2>O ARQUIVO PERDIDO</h2>
+            <p class="description">
+                O arquivo não estava perdido.<br>
+                Alguém fez questão de escondê-lo no fundo do complexo.
+            </p>
+            <button id="startButton">INICIAR INVESTIGAÇÃO</button>
+        </div>
+    </div>
+
+    <!-- =========================================
+         EFEITO DE ABERTURA DOS OLHOS
+    ========================================= -->
+    <div id="eyes" class="eyes">
+        <div class="eyelid eyelid-top"></div>
+        <div class="eyelid eyelid-bottom"></div>
+    </div>
+
+    <!-- =========================================
+         ESTRUTURA DO JOGO 2D & 3D
+    ========================================= -->
+    <div id="game" class="game hidden">
+
+        <!-- CAMADA DE ALARME DE EMERGÊNCIA -->
+        <div id="alarmOverlay" class="alarm-overlay hidden"></div>
+
+        <!-- TRANSIÇÃO PARA PRIMEIRA PESSOA -->
+        <div id="perspectiveTransition" class="perspective-transition hidden">
+            <div class="transition-text">ENTRANDO EM MODO DE FUGA EM 1ª PESSOA...</div>
+        </div>
+
+        <!-- =========================
+             SALA 1: QUARTO / LABORATÓRIO DE PESQUISA (2D)
+        ========================== -->
+        <div id="room1" class="room room-1">
+            <div class="wall"></div>
+            <div class="floor"></div>
+
+            <!-- Iluminação Realista do Teto -->
+            <div class="ceiling-fixture">
+                <div class="fixture-rod left"></div>
+                <div class="fixture-rod right"></div>
+                <div class="room1-ceiling-light"></div>
+            </div>
+            <div class="light-cone"></div>
+
+            <!-- Goteira Vinda do Teto e Poça d'Água no Chão -->
+            <div class="ceiling-pipe"></div>
+            <div class="water-drip-container">
+                <div class="water-drop"></div>
+                <div class="water-puddle">
+                    <div class="ripple"></div>
+                </div>
+            </div>
+
+            <!-- Cama com Travesseiro e Cobertor Jogado -->
+            <div class="bed">
+                <div class="pillow"></div>
+            </div>
+            <div class="blanket-floor"></div>
+
+            <!-- Mesa 1: Livros e Lanterna -->
+            <div id="table1" class="extra-desk desk-1">
+                <div class="desk-top"></div>
+                <div class="desk-legs"></div>
+                <div class="book-stack">
+                    <div class="book b1"></div>
+                    <div class="book b2"></div>
+                </div>
+                <!-- Lanterna Visível na Mesa -->
+                <div id="flashlightItem" class="flashlight-item">
+                    <div class="flashlight-body"></div>
+                    <div class="flashlight-beam-glow"></div>
+                </div>
+            </div>
+
+            <!-- Mesa 2: Documentos e Arquivos -->
+            <div id="table2" class="extra-desk desk-2">
+                <div class="desk-top"></div>
+                <div class="desk-legs"></div>
+                <div class="open-folder">
+                    <div class="folder-paper"></div>
+                </div>
+            </div>
+
+            <!-- Computador Principal -->
+            <div id="computer" class="computer">
+                <div class="monitor">
+                    <div class="screen">
+                        <span>SYSTEM</span>
+                    </div>
+                </div>
+                <div class="monitor-stand"></div>
+                <div class="computer-base"></div>
+                <div class="keyboard"></div>
+            </div>
+
+            <!-- Porta FNAF de Metal (Direita) -->
+            <div id="door1" class="fnaf-door door-right-side">
+                <div class="door-frame">
+                    <div class="door-status-light"></div>
+                </div>
+                <div class="door-shutter">
+                    <div class="slat"></div>
+                    <div class="slat"></div>
+                    <div class="slat"></div>
+                    <div class="slat"></div>
+                    <div class="slat"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- =========================
+             SALA 2: SALA DOS DOCUMENTOS (2D)
+        ========================== -->
+        <div id="room2" class="room room-2 hidden">
+            <div class="wall dark-wall"></div>
+            <div class="floor dark-floor"></div>
+
+            <!-- Papéis Rasgados Espalhados -->
+            <div id="paper1" class="torn-paper paper-1">
+                <div class="paper-glow"></div>
+            </div>
+            <div id="paper2" class="torn-paper paper-2 hidden-item">
+                <div class="paper-glow"></div>
+            </div>
+            <div id="paper3" class="torn-paper paper-3 hidden-item">
+                <div class="paper-glow"></div>
+            </div>
+
+            <!-- Porta de Entrada (Esquerda) -->
+            <div id="door2" class="fnaf-door door-open door-left">
+                <div class="door-frame">
+                    <div class="door-status-light"></div>
+                </div>
+                <div class="door-shutter">
+                    <div class="slat"></div>
+                    <div class="slat"></div>
+                    <div class="slat"></div>
+                    <div class="slat"></div>
+                    <div class="slat"></div>
+                </div>
+            </div>
+
+            <!-- Porta de Acesso ao Corredor 3D (Direita) -->
+            <div id="door3" class="fnaf-door door-right">
+                <div class="door-frame">
+                    <div class="door-status-light"></div>
+                </div>
+                <div class="door-shutter">
+                    <div class="slat"></div>
+                    <div class="slat"></div>
+                    <div class="slat"></div>
+                    <div class="slat"></div>
+                    <div class="slat"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- =========================================
+              MODO DE PERSEGUIÇÃO 3D EM 1ª PESSOA
+        ========================================= -->
+        <div id="chase3DContainer" class="chase-3d-container hidden">
+            <!-- CANVAS DO CORREDOR 3D -->
+            <canvas id="canvas3D"></canvas>
+            
+            <!-- INDICADOR DE CÂMERA/OLHAR PARA TRÁS -->
+            <div id="lookBackIndicator" class="look-back-indicator hidden">
+                <span>👁️ OLHANDO PARA TRÁS — AMEAÇA EM APROXIMAÇÃO</span>
+            </div>
+
+            <!-- ANIMAÇÃO DE BRAÇOS EM PRIMEIRA PESSOA BALANÇANDO -->
+            <div id="firstPersonArms" class="first-person-arms">
+                <div class="arm-container arm-left">
+                    <div class="forearm"></div>
+                    <div class="sleeve"></div>
+                    <div class="hand"></div>
+                </div>
+                <div class="arm-container arm-right">
+                    <div class="forearm"></div>
+                    <div class="sleeve"></div>
+                    <div class="hand"></div>
+                </div>
+            </div>
+
+            <!-- HUD DE FUGA EM 1ª PESSOA -->
+            <div class="hud-3d">
+                <div class="hud-header">
+                    <span class="warning-blink">⚠️ ALERTA DE PERSEGUIÇÃO - CORRA PARA A PORTA DO BUNKER!</span>
+                </div>
+                <div class="hud-bars">
+                    <div class="hud-bar-group">
+                        <label>DISTÂNCIA DA PORTA DE SEGURANÇA:</label>
+                        <div class="bar-outer"><div id="distBar" class="bar-inner dist-inner"></div></div>
+                        <span id="distText">150m</span>
+                    </div>
+                    <div class="hud-bar-group">
+                        <label>AMEAÇA ATRÁS DE VOCÊ:</label>
+                        <div class="bar-outer"><div id="monsterBar" class="bar-inner monster-inner"></div></div>
+                        <span id="monsterText">DISTÂNCIA CRÍTICA</span>
+                    </div>
+                    <div class="hud-bar-group">
+                        <label>ESTÂMINA [SEGURE SHIFT PARA CORRER]:</label>
+                        <div class="bar-outer"><div id="staminaBar" class="bar-inner stamina-inner"></div></div>
+                    </div>
+                </div>
+                <div class="controls-tip">
+                    Pressione <b>[W] / [SETA CIMA]</b> para avançar rápido • <b>[A/D]</b> para desviar • <b>[SHIFT]</b> Sprint<br>
+                    <span class="highlight-key">SEGURE [ESPAÇO] OU [S] PARA OLHAR PARA TRÁS</span><br>MOUSE (CLIQUE NA TELA) OU [Q]/[E] PARA GIRAR A CÂMERA
+                </div>
+            </div>
+        </div>
+
+        <!-- =========================
+             SALA 3: BUNKER SEGURO (2D)
+        ========================== -->
+        <div id="room3" class="room room-3 hidden">
+            <!-- Parede acolchoada e piso forrado -->
+            <div class="wall corridor-wall cell-wall"></div>
+            <div class="floor corridor-floor cell-floor"></div>
+
+            <!-- Teto, ventilação e rodapé -->
+            <div class="cell-ceiling"><div class="cell-vent"></div><div class="cell-ceiling-stain"></div></div>
+            <div class="cell-baseboard"></div>
+
+            <!-- Arranhões vermelhos (desenhados por setupPaddedCell no script.js) -->
+            <svg id="cellScratches" class="cell-scratches" viewBox="0 0 160 65" preserveAspectRatio="none"></svg>
+
+            <!-- Rasgos no estofado e enchimento caído -->
+            <div class="pad-tear" style="left:9%;top:34%;width:64px;height:46px"></div>
+            <div class="pad-tear" style="left:66%;top:27%;width:78px;height:52px;transform:rotate(14deg)"></div>
+            <div class="pad-tear" style="left:27%;top:30%;width:52px;height:38px;transform:rotate(-20deg)"></div>
+            <div class="cell-stuff" style="left:20%;bottom:4%"></div>
+            <div class="cell-stuff" style="left:71%;bottom:3%;transform:scale(.8)"></div>
+
+            <!-- Janela de observação com barras entortadas e arrancadas -->
+            <div class="cell-window">
+                <i class="cw-bar" style="left:8%"></i>
+                <i class="cw-bar bent" style="left:28%"></i>
+                <i class="cw-bar stub-top" style="left:48%"></i>
+                <i class="cw-bar stub-bot" style="left:48%"></i>
+                <i class="cw-bar" style="left:68%"></i>
+                <i class="cw-bar bent2" style="left:86%"></i>
+            </div>
+
+            <!-- Câmera de vigilância, grade de ar, correntes e vaso de aço -->
+            <div class="cell-camera"><i></i></div>
+            <div class="cell-chains">
+                <div class="cc c1"><i class="plate"></i><i class="chain"></i><i class="cuff"></i></div>
+                <div class="cc c2"><i class="plate"></i><i class="chain"></i><i class="cuff"></i></div>
+            </div>
+            <div class="cell-steel"><i class="st-tank"></i><i class="st-bowl"></i><i class="st-sink"></i></div>
+
+            <!-- Chão: ralo, poça, rastro de sangue, camisa de força, tigela virada -->
+            <div class="cell-pool"></div>
+            <div class="cell-drain"></div>
+            <div class="cell-trail"></div>
+            <div class="cell-jacket"><i class="sleeve a"></i><i class="sleeve b"></i><i class="body"></i><i class="strap s1"></i><i class="strap s2"></i></div>
+            <div class="cell-bowl"></div>
+
+            <!-- Marcas de mãos ensanguentadas na parede -->
+            <div class="cell-hand" style="left:36%;top:46%;transform:rotate(-12deg)"></div>
+            <div class="cell-hand" style="left:71%;top:50%;transform:rotate(22deg) scale(.9)"></div>
+            <div class="cell-hand" style="left:74.5%;top:44%;transform:rotate(48deg) scale(.8)"></div>
+
+            <!-- Porta acolchoada de entrada (selada) -->
+            <div id="room3EntranceDoor" class="fnaf-door door-left">
+                <div class="door-frame">
+                    <div class="door-status-light red"></div>
+                </div>
+                <div class="door-shutter">
+                    <div class="slat"></div>
+                    <div class="slat"></div>
+                    <div class="slat"></div>
+                    <div class="slat"></div>
+                    <div class="slat"></div>
+                </div>
+            </div>
+
+            <div class="bunker-sign">
+                <span>SETOR B // NÚCLEO DE SEGURANÇA SELADO</span>
+            </div>
+
+            <!-- Lâmpada com gaiola e iluminação tensa -->
+            <div class="cell-lamp"><i></i></div>
+            <div class="cell-light"></div>
+        </div>
+
+                <!-- MÁSCARA DA LANTERNA EM SALAS ESCURAS 2D -->
+        <div id="darkness" class="darkness-overlay hidden"></div>
+
+        <!-- ENTIDADE / MONSTRO EM 2D -->
+        <div id="monster" class="monster hidden">
+            <div class="monster-shadow"></div>
+            <div class="monster-body">
+                <div class="monster-eyes">
+                    <div class="m-eye left"></div>
+                    <div class="m-eye right"></div>
+                </div>
+                <div class="monster-jaw"></div>
+            </div>
+        </div>
+
+        <!-- PERSONAGEM DO JOGADOR EM 2D -->
+        <div id="player" class="player facing-down is-lying">
+            <div class="player-shadow"></div>
+            <div class="player-body">
+                <div class="head">
+                    <div class="hair"></div>
+                    <div class="face">
+                        <div class="eye left"></div>
+                        <div class="eye right"></div>
+                    </div>
+                </div>
+                <div class="torso">
+                    <div class="jacket"></div>
+                    <div class="arm arm-left"><div class="hand"></div></div>
+                    <div class="arm arm-right"><div class="hand"></div></div>
+                </div>
+                <div class="legs">
+                    <div class="leg leg-left"><div class="foot"></div></div>
+                    <div class="leg leg-right"><div class="foot"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NARRATIVA E BOTÕES DE AÇÃO -->
+        <div id="storyText" class="story-text"></div>
+        <div id="interaction" class="interaction hidden">
+            <button id="actionButton">INTERAGIR</button>
+        </div>
+
+        <!-- MODAIS DO JOGO -->
+        <div id="recovery" class="modal-overlay hidden">
+            <div class="modal-box">
+                <p class="terminal">TERMINAL // RECOVERY_SYSTEM</p>
+                <h2>RECUPERANDO ARQUIVO...</h2>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div id="progress" class="progress"></div>
+                    </div>
+                    <span id="percentage">0%</span>
+                </div>
+                <p id="recoveryStatus">Inicializando recuperação...</p>
+            </div>
+        </div>
+
+        <div id="paperModal" class="modal-overlay hidden">
+            <div class="paper-document">
+                <div class="paper-header">
+                    <span id="paperTitle">DOCUMENTO CONFIDENCIAL</span>
+                </div>
+                <div class="paper-body-text">
+                    <p id="paperContent"></p>
+                </div>
+                <button id="closePaperButton">FECHAR E CONTINUAR</button>
+            </div>
+        </div>
+
+        <div id="gameOverModal" class="modal-overlay game-over-modal hidden">
+            <div class="game-over-box">
+                <h1>VOCÊ FOI PEGO</h1>
+                <p>A entidade alcançou você no corredor escuro...</p>
+                <button id="restartButton">TENTAR NOVAMENTE</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- AVISO DE ROTAÇÃO (só em celular na vertical) -->
+    <div id="rotateHint" class="rotate-hint">📱 Gire o celular para a horizontal para jogar melhor</div>
+
+    <!-- CONTROLES TOUCH (joystick flutuante à esquerda, botões à direita) -->
+    <div id="touchUI" class="touch-ui">
+        <div id="stickZone" class="stick-zone">
+            <div id="stickBase" class="stick-base"><div id="stickKnob" class="stick-knob"></div></div>
+        </div>
+        <div class="touch-btns">
+            <button id="btnAct" class="tbtn tbtn-act">AGIR</button>
+            <button id="btnLook" class="tbtn tbtn-look">OLHAR</button>
+            <button id="btnRun" class="tbtn tbtn-run">CORRER</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
