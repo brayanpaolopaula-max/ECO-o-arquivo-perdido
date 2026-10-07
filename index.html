@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <title>ECO: O Arquivo Perdido</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- FILTROS DE REALISMO ATMOSFÉRICO (VIGNETTE & FILM GRAIN) -->
+    <div class="cinematic-vignette"></div>
+    <div class="film-grain"></div>
+
+    <!-- =========================================
+         MENU INICIAL
+    ========================================= -->
+    <!-- CRÉDITOS (dark / neon) -->
+        <div id="creditsScreen" class="credits hidden">
+            <canvas id="crCanvas" class="cr-canvas"></canvas>
+            <div class="cr-scan"></div>
+            <header class="cr-head"><small>UM JOGO DE TERROR EM</small><h2>ECO</h2><h3>O ARQUIVO PERDIDO</h3></header>
+    
+            <div class="cr-person cr-eike"><span class="cr-role">Desenvolvedor Tester</span><b>Eike</b></div>
+            <div class="cr-person cr-henrique"><span class="cr-role">Product Owner</span><b>Henrique</b></div>
+            <div class="cr-person cr-eduardo"><span class="cr-role">Desenvolvedor Designer</span><b>Eduardo</b></div>
+    
+            <div class="cr-star">
+                <div class="br-aura"></div>
+                <i class="br-ring"></i><i class="br-ring r2"></i><i class="br-ring r3"></i>
+                <span class="br-role">★ SCRUM MASTER ★</span>
+                <b class="br-name">BRAYAN</b>
+                <span class="br-sub">líder do projeto</span>
+            </div>
+    
+            <p class="cr-foot">Obrigado por jogar.</p>
+            <button id="creditsBack">VOLTAR</button>
+        </div>
+
+    <div id="menu" class="menu">
+        <!-- Fundo dinâmico: corredor 3D do bunker, névoa volumétrica e luz de emergência pulsante -->
+        <canvas id="menuCanvas" class="menu-canvas"></canvas>
+        <div class="menu-fog"><i></i><i></i><i></i></div>
+        <div class="menu-pulse"></div>
+        <div class="menu-vig"></div>
+        <div class="menu-scan"></div>
+        <div class="menu-noise"></div>
+
+        <div class="menu-content">
+            <p class="project">PROJETO DE INVESTIGAÇÃO</p>
+            <h1 class="glitch" data-text="ECO">ECO</h1>
+            <h2 class="glitch-sub">O ARQUIVO PERDIDO</h2>
+            <p class="description">
+                O arquivo não estava perdido.<br>
+                Alguém fez questão de escondê-lo no fundo do complexo.
+            </p>
+            <nav class="menu-btns">
+                <button id="startButton" class="mbtn primary"><span>INICIAR EXPERIMENTO</span></button>
+                <button id="optionsButton" class="mbtn"><span>OPÇÕES</span></button>
+                <button id="menuCreditsButton" class="mbtn"><span>CRÉDITOS</span></button>
+            </nav>
+        </div>
+        <p id="menuHint" class="menu-hint">toque ou clique em qualquer lugar para ativar o som</p>
+
+        <!-- Opções -->
+        <div id="optionsModal" class="opt-modal hidden">
+            <div class="opt-box">
+                <h3>OPÇÕES</h3>
+                <label>VOLUME GERAL <output id="volOut">90</output>
+                    <input id="volRange" type="range" min="0" max="100" value="90">
+                </label>
+                <label>VOLUME DA MÚSICA <output id="musOut">60</output>
+                    <input id="musRange" type="range" min="0" max="100" value="60">
+                </label>
+                <label class="opt-check"><input id="fsCheck" type="checkbox"> TELA CHEIA</label>
+                <button id="optionsClose" class="mbtn"><span>FECHAR</span></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================
+         EFEITO DE ABERTURA DOS OLHOS
+    ========================================= -->
+    <div id="eyes" class="eyes">
+        <div class="eyelid eyelid-top"></div>
+        <div class="eyelid eyelid-bottom"></div>
+    </div>
+
+    <!-- =========================================
+         ESTRUTURA DO JOGO 2D & 3D
+    ========================================= -->
+    <div id="game" class="game hidden">
+
+        <!-- CAMADA DE ALARME DE EMERGÊNCIA -->
+        <div id="alarmOverlay" class="alarm-overlay hidden"><i class="al-lamp l"></i><i class="al-lamp r"></i></div>
+
+        <!-- TRANSIÇÃO PARA PRIMEIRA PESSOA -->
+        <div id="perspectiveTransition" class="perspective-transition hidden">
+            <div class="transition-text">ENTRANDO EM MODO DE FUGA EM 1ª PESSOA...</div>
+        </div>
+
+        <!-- =========================
+             SALA 1: QUARTO / LABORATÓRIO DE PESQUISA (2D)
+        ========================== -->
+        <div id="room1" class="room room-1">
+            <div class="wall"></div>
+            <div class="floor"></div>
+
+            <!-- Iluminação Realista do Teto -->
+            <div class="ceiling-fixture">
+                <div class="fixture-rod left"></div>
+                <div class="fixture-rod right"></div>
+                <div class="room1-ceiling-light"></div>
+            </div>
+            <div class="light-cone"></div>
+
+            <!-- Goteira Vinda do Teto e Poça d'Água no Chão -->
+            <div class="ceiling-pipe"></div>
+            <div class="water-drip-container">
+                <div class="water-drop"></div>
+                <div class="water-puddle">
+                    <div class="ripple"></div>
+                </div>
+            </div>
+
+            <!-- Cama com Travesseiro e Cobertor Jogado -->
+            <div class="bed">
+                <div class="pillow"></div>
+            </div>
+            <div class="blanket-floor"></div>
+
+            <!-- Mesa 1: Livros e Lanterna -->
+            <div id="table1" class="extra-desk desk-1">
+                <div class="desk-top"></div>
+                <div class="desk-legs"></div>
+                <div class="book-stack">
+                    <div class="book b1"></div>
+                    <div class="book b2"></div>
+                </div>
+                <!-- Lanterna Visível na Mesa -->
+                <div id="flashlightItem" class="flashlight-item">
+                    <div class="flashlight-body"></div>
+                    <div class="flashlight-beam-glow"></div>
+                </div>
+            </div>
+
+            <!-- Mesa 2: Documentos e Arquivos -->
+            <div id="table2" class="extra-desk desk-2">
+                <div class="desk-top"></div>
+                <div class="desk-legs"></div>
+                <div class="open-folder">
+                    <div class="folder-paper"></div>
+                </div>
+            </div>
+
+            <!-- Computador Principal -->
+            <div id="computer" class="computer">
+                <div class="monitor">
+                    <div class="screen">
+                        <span>SYSTEM</span>
+                    </div>
+                </div>
+                <div class="monitor-stand"></div>
+                <div class="computer-base"></div>
+                <div class="keyboard"></div>
+            </div>
+
+            <!-- Porta FNAF de Metal (Direita) -->
+            <div id="door1" class="fnaf-door door-right-side">
+                <div class="door-frame">
+                    <div class="door-status-light"></div>
+                </div>
+                <div class="door-shutter">
+                    <div class="slat"></div>
+                    <div class="slat"></div>
+                    <div class="slat"></div>
+                    <div class="slat"></div>
+                    <div class="slat"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- =========================
+             SALA 2: SALA DOS DOCUMENTOS (2D)
+        ========================== -->
+        <div id="room2" class="room room-2 hidden">
+            <div class="wall dark-wall"></div>
+            <div class="floor dark-floor"></div>
+
+            <!-- Papéis Rasgados Espalhados -->
+            <div id="paper1" class="torn-paper paper-1">
+                <div class="paper-glow"></div>
+            </div>
+            <div id="paper2" class="torn-paper paper-2 hidden-item">
+                <div class="paper-glow"></div>
+            </div>
+            <div id="paper3" class="torn-paper paper-3 hidden-item">
+                <div class="paper-glow"></div>
+            </div>
+
+            <!-- Porta de Entrada (Esquerda) -->
+            <div id="door2" class="fnaf-door door-open door-left">
+                <div class="door-frame">
+                    <div class="door-status-light"></div>
+                </div>
+                <div class="door-shutter">
+                    <div class="slat"></div>
+                    <div class="slat"></div>
+                    <div class="slat"></div>
+                    <div class="slat"></div>
+                    <div class="slat"></div>
+                </div>
+            </div>
+
+            <!-- Porta de Acesso ao Corredor 3D (Direita) -->
+            <div id="door3" class="fnaf-door door-right">
+                <div class="door-frame">
+                    <div class="door-status-light"></div>
+                </div>
+                <div class="door-shutter">
+                    <div class="slat"></div>
+                    <div class="slat"></div>
+                    <div class="slat"></div>
+                    <div class="slat"></div>
+                    <div class="slat"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- =========================================
+              MODO DE PERSEGUIÇÃO 3D EM 1ª PESSOA
+        ========================================= -->
+        <div id="chase3DContainer" class="chase-3d-container hidden">
+            <!-- CANVAS DO CORREDOR 3D -->
+            <canvas id="canvas3D"></canvas>
+            
+            <!-- INDICADOR DE CÂMERA/OLHAR PARA TRÁS -->
+            <div id="lookBackIndicator" class="look-back-indicator hidden">
+                <span>👁️ OLHANDO PARA TRÁS — AMEAÇA EM APROXIMAÇÃO</span>
+            </div>
+
+            <!-- ANIMAÇÃO DE BRAÇOS EM PRIMEIRA PESSOA BALANÇANDO -->
+            <div id="firstPersonArms" class="first-person-arms">
+                <div class="arm-container arm-left">
+                    <div class="forearm"></div>
+                    <div class="sleeve"></div>
+                    <div class="hand"></div>
+                </div>
+                <div class="arm-container arm-right">
+                    <div class="forearm"></div>
+                    <div class="sleeve"></div>
+                    <div class="hand"></div>
+                </div>
+            </div>
+
+            <!-- HUD DE FUGA EM 1ª PESSOA -->
+            <div class="hud-3d">
+                <div class="hud-header">
+                    <span class="warning-blink">⚠️ ALERTA DE PERSEGUIÇÃO - CORRA PARA A PORTA DO BUNKER!</span>
+                </div>
+                <div class="hud-bars">
+                    <div class="hud-bar-group">
+                        <label>DISTÂNCIA DA PORTA DE SEGURANÇA:</label>
+                        <div class="bar-outer"><div id="distBar" class="bar-inner dist-inner"></div></div>
+                        <span id="distText">150m</span>
+                    </div>
+                    <div class="hud-bar-group">
+                        <label>AMEAÇA ATRÁS DE VOCÊ:</label>
+                        <div class="bar-outer"><div id="monsterBar" class="bar-inner monster-inner"></div></div>
+                        <span id="monsterText">DISTÂNCIA CRÍTICA</span>
+                    </div>
+                    <div class="hud-bar-group">
+                        <label>ESTÂMINA [SEGURE SHIFT PARA CORRER]:</label>
+                        <div class="bar-outer"><div id="staminaBar" class="bar-inner stamina-inner"></div></div>
+                    </div>
+                </div>
+                <div class="controls-tip">
+                    Pressione <b>[W] / [SETA CIMA]</b> para avançar rápido • <b>[A/D]</b> para desviar • <b>[SHIFT]</b> Sprint<br>
+                    <span class="highlight-key">SEGURE [ESPAÇO] OU [S] PARA OLHAR PARA TRÁS</span><br>MOUSE (CLIQUE NA TELA) OU [Q]/[E] PARA GIRAR A CÂMERA
+                </div>
+            </div>
+        </div>
+
+        <!-- =========================
+             SALA 3: BUNKER SEGURO (2D)
+        ========================== -->
+        <div id="room3" class="room room-3 hidden">
+            <!-- Sala acolchoada branca de hospício -->
+            <div class="wall corridor-wall cell-wall"></div>
+            <div class="floor corridor-floor cell-floor"></div>
+
+            <!-- Teto, ventilação e rodapé -->
+            <div class="cell-ceiling"><div class="cell-vent"></div><div class="cell-ceiling-stain"></div></div>
+            <div class="cell-baseboard"></div>
+
+            <!-- Arranhões vermelhos (desenhados por setupPaddedCell no script.js) -->
+            <svg id="cellScratches" class="cell-scratches" viewBox="0 0 160 65" preserveAspectRatio="none"></svg>
+
+            <!-- Rasgos no estofado e enchimento caído -->
+            <div class="pad-tear" style="left:10%;top:30%;width:64px;height:46px"></div>
+            <div class="pad-tear" style="left:79%;top:24%;width:78px;height:52px;transform:rotate(14deg)"></div>
+            <div class="pad-tear" style="left:20%;top:44%;width:52px;height:38px;transform:rotate(-20deg)"></div>
+            <div class="pad-tear" style="left:70%;top:46%;width:56px;height:40px;transform:rotate(8deg)"></div>
+            <div class="cell-stuff" style="left:14%;bottom:4%"></div>
+            <div class="cell-stuff" style="left:85%;bottom:3%;transform:scale(.8)"></div>
+
+            <!-- CELA ARROMBADA no centro da parede: por aqui a entidade escapou -->
+            <div class="broken-cell">
+                <div class="bc-hole">
+                    <div class="bc-back"></div>
+                    <svg class="bc-cracks" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M50 0 L46 22 L54 40 L47 58 M46 22 L30 30 L22 52 M54 40 L72 46 L80 70 M47 58 L40 80 L44 100" fill="none" stroke="#000" stroke-width="1.4" vector-effect="non-scaling-stroke"/></svg>
+                    <div id="cellSafe" class="cell-safe"><div class="sf-in"></div><div class="sf-door"><i class="dial"></i><i class="handle"></i></div></div>
+                </div>
+                <i class="bc-chip c1"></i><i class="bc-chip c2"></i>
+                <i class="bc-rail"></i>
+                <i class="bc-bar" style="left:11%"></i>
+                <i class="bc-bar bent-a" style="left:25%"></i>
+                <i class="bc-bar stub-top" style="left:40%"></i>
+                <i class="bc-bar bent-b" style="left:55%"></i>
+                <i class="bc-bar stub-bot" style="left:69%"></i>
+                <i class="bc-bar bent-c" style="left:84%"></i>
+                <div class="bc-door"></div>
+            </div>
+
+            <!-- Escombros, barras retorcidas e estilhaços espalhados pelo chão -->
+            <div class="rubble" style="left:28%;bottom:9%;width:54px;height:34px"></div>
+            <div class="rubble r2" style="left:33%;bottom:15%;width:34px;height:24px"></div>
+            <div class="rubble r3" style="left:44%;bottom:6%;width:62px;height:30px"></div>
+            <div class="rubble" style="left:56%;bottom:14%;width:40px;height:28px"></div>
+            <div class="rubble r2" style="left:62%;bottom:8%;width:58px;height:34px"></div>
+            <div class="rubble r3" style="left:68%;bottom:16%;width:30px;height:20px"></div>
+            <i class="floor-bar" style="left:35%;bottom:6%;transform:rotate(-8deg)"></i>
+            <i class="floor-bar bend" style="left:48%;bottom:12%;transform:rotate(14deg)"></i>
+            <i class="floor-bar" style="left:57%;bottom:4%;width:96px;transform:rotate(-24deg)"></i>
+            <i class="shard" style="left:31%;bottom:5%;transform:rotate(30deg)"></i>
+            <i class="shard s2" style="left:41%;bottom:13%;transform:rotate(-40deg)"></i>
+            <i class="shard" style="left:52%;bottom:9%;transform:rotate(80deg)"></i>
+            <i class="shard s2" style="left:64%;bottom:5%;transform:rotate(15deg)"></i>
+            <i class="shard" style="left:70%;bottom:11%;transform:rotate(-65deg)"></i>
+
+            <!-- Câmera de vigilância, correntes e vaso de aço -->
+            <div class="cell-camera"><i></i></div>
+            <div class="cell-chains">
+                <div class="cc c1"><i class="plate"></i><i class="chain"></i><i class="cuff"></i></div>
+                <div class="cc c2"><i class="plate"></i><i class="chain"></i><i class="cuff"></i></div>
+            </div>
+            <div class="cell-steel"><i class="st-tank"></i><i class="st-bowl"></i><i class="st-sink"></i></div>
+
+            <!-- Chão: ralo, poça, rastro de sangue, camisa de força, tigela virada -->
+            <div class="cell-pool" style="left:37%"></div>
+            <div class="cell-drain" style="left:78%"></div>
+            <div class="cell-trail"></div>
+            <div class="cell-jacket" style="left:80%"><i class="sleeve a"></i><i class="sleeve b"></i><i class="body"></i><i class="strap s1"></i><i class="strap s2"></i></div>
+            <div class="cell-bowl" style="left:22%"></div>
+
+            <!-- Marcas de mãos ensanguentadas na parede -->
+            <div class="cell-hand" style="left:19%;top:46%;transform:rotate(-12deg)"></div>
+            <div class="cell-hand" style="left:73%;top:50%;transform:rotate(22deg) scale(.9)"></div>
+            <div class="cell-hand" style="left:76.5%;top:44%;transform:rotate(48deg) scale(.8)"></div>
+
+            <!-- Escorridos de gosma preta nas paredes -->
+            <i class="goo-wall" style="left:26%;top:9%;height:70px"></i><i class="goo-wall" style="left:30%;top:9%;height:40px;width:14px"></i>
+            <i class="goo-wall" style="left:71%;top:9%;height:96px"></i><i class="goo-wall" style="left:89%;top:9%;height:58px;width:16px"></i>
+
+            <!-- Porta acolchoada de entrada (selada) -->
+            <div id="room3EntranceDoor" class="fnaf-door door-left">
+                <div class="door-frame">
+                    <div class="door-status-light red"></div>
+                </div>
+                <div class="door-shutter">
+                    <div class="slat"></div>
+                    <div class="slat"></div>
+                    <div class="slat"></div>
+                    <div class="slat"></div>
+                    <div class="slat"></div>
+                </div>
+            </div>
+
+            <div class="bunker-sign">
+                <span>SALA DE CONTENÇÃO // CELA 064</span>
+            </div>
+
+            <!-- Lâmpada com gaiola e iluminação tensa -->
+            <div class="cell-lamp"><i></i></div>
+            <div class="cell-light"></div>
+        </div>
+
+<!-- SALA 4: BIFURCAÇÃO (escolha de caminho) -->
+        <div id="room4" class="room room-hub hidden">
+            <div class="wall hub-wall"></div><div class="floor hub-floor"></div>
+            <div class="hub-sign"><b>BIFURCAÇÃO</b><span>⟵ CONTENÇÃO &nbsp;│&nbsp; CORREDOR PRINCIPAL ⟶</span></div>
+            <div id="hubCellDoor" class="fnaf-door door-left" style=""><div class="door-frame"><div class="door-status-light red"></div></div><div class="door-shutter"><div class="slat"></div><div class="slat"></div><div class="slat"></div><div class="slat"></div><div class="slat"></div></div></div>
+            <div class="hub-plaque" style="left:3%">SALA DE CONTENÇÃO<small>⚠ cela arrombada • gosmas observam</small></div>
+            <div class="hub-arch"></div>
+            <div class="hub-plaque" style="right:3%">CAMINHO PRINCIPAL<small>⚠ rastros recentes</small></div>
+        </div>
+
+        <!-- SALA 5: CORREDOR VERMELHO (portas + escada) -->
+        <div id="room5" class="room room-red hidden">
+            <div class="wall red-wall"></div><div class="floor red-floor"></div>
+            <i class="red-drip" style="left:12%;top:0;height:70px"></i><i class="red-drip" style="left:30%;top:0;height:120px"></i><i class="red-drip" style="left:46%;top:0;height:52px"></i><i class="red-drip" style="left:58%;top:0;height:96px"></i><i class="red-drip" style="left:70%;top:0;height:66px"></i><i class="red-drip" style="left:86%;top:0;height:130px"></i><i class="ketchup" style="left:18%;bottom:9%;width:90px;height:34px"></i><i class="ketchup" style="left:34%;bottom:15%;width:70px;height:26px"></i><i class="ketchup" style="left:50%;bottom:8%;width:120px;height:40px"></i><i class="ketchup" style="left:63%;bottom:17%;width:80px;height:28px"></i><i class="ketchup" style="left:78%;bottom:10%;width:100px;height:36px"></i><i class="ketchup" style="left:90%;bottom:18%;width:64px;height:24px"></i><i class="ketchup" style="left:8%;bottom:16%;width:56px;height:22px"></i>
+            <div id="redBackDoor" class="fnaf-door door-left" style=""><div class="door-frame"><div class="door-status-light red"></div></div><div class="door-shutter"><div class="slat"></div><div class="slat"></div><div class="slat"></div><div class="slat"></div><div class="slat"></div></div></div>
+            <div id="labDoor" class="fnaf-door " style="left:22%"><div class="door-frame"><div class="door-status-light red"></div></div><div class="door-shutter"><div class="slat"></div><div class="slat"></div><div class="slat"></div><div class="slat"></div><div class="slat"></div></div></div>
+            <div class="door-plaque" style="left:calc(22% + 40px)">LABORATÓRIO DE PESQUISAS</div>
+            <div id="survDoor" class="fnaf-door " style="left:48%"><div class="door-frame"><div class="door-status-light red"></div></div><div class="door-shutter"><div class="slat"></div><div class="slat"></div><div class="slat"></div><div class="slat"></div><div class="slat"></div></div></div>
+            <div class="door-plaque" style="left:calc(48% + 40px)">SALA DE VIGILÂNCIA</div>
+            <div class="stairs-wrap"><div class="stairs-sign">↑ PORTA DE SAÍDA</div>
+            <svg class="stairs" viewBox="0 0 200 170" preserveAspectRatio="none"><polygon points="0,170 0,142 33,142 33,113 66,113 66,85 100,85 100,57 133,57 133,28 166,28 166,0 200,0 200,170" fill="#4a4f58" stroke="#16181c" stroke-width="3"/><path d="M0 142H33M33 113H66M66 85H100M100 57H133M133 28H166M166 0H200" stroke="#9aa0ab" stroke-width="3"/><path d="M33 142V100M100 85V43M166 28V-14M0 128L200 -43" stroke="#8d9099" stroke-width="3" fill="none"/></svg></div>
+        </div>
+
+        <!-- SALA 6: PORTA DE SAÍDA -->
+        <div id="room6" class="room room-up hidden">
+            <div class="wall up-wall"></div><div class="floor up-floor"></div>
+            <div class="up-window"></div>
+            <div class="hub-sign" style="top:8%"><b>PORTA DE SAÍDA</b><span>SETOR DE EVACUAÇÃO</span></div>
+            <div class="stairs-wrap down"><div class="stairs-sign">↓ TÉRREO</div>
+            <svg class="stairs" viewBox="0 0 200 170" preserveAspectRatio="none"><polygon points="0,170 0,142 33,142 33,113 66,113 66,85 100,85 100,57 133,57 133,28 166,28 166,0 200,0 200,170" fill="#4a4f58" stroke="#16181c" stroke-width="3"/><path d="M0 142H33M33 113H66M66 85H100M100 57H133M133 28H166M166 0H200" stroke="#9aa0ab" stroke-width="3"/><path d="M33 142V100M100 85V43M166 28V-14M0 128L200 -43" stroke="#8d9099" stroke-width="3" fill="none"/></svg></div>
+            <div class="up-board"><i></i><i></i><i></i></div>
+            <div id="dirDoor" class="fnaf-door door-right" style=""><div class="door-frame"><div class="door-status-light red"></div></div><div class="door-shutter"><div class="slat"></div><div class="slat"></div><div class="slat"></div><div class="slat"></div><div class="slat"></div></div></div>
+            <div class="door-plaque" style="right:calc(3% + 40px);transform:translateX(50%)">PORTA DE SAÍDA</div>
+        </div>
+
+        
+        <!-- SALA 7: VIGILÂNCIA -->
+        <div id="room7" class="room room-surv hidden">
+            <div class="wall surv-wall"></div><div class="floor surv-floor"></div>
+            <div class="hub-sign" style="top:6%"><b>SALA DE VIGILÂNCIA</b></div>
+            <div class="main-monitor"><div class="cctv"><div class="cv-cell"></div><div class="cv-bars"><b></b><b></b><b></b><b></b><b></b></div><div class="cv-beast"><i></i><i></i></div><div class="cv-flash"></div><div class="cv-noise"></div><span class="cv-hud">● REC · CAM 07 — SELA 064</span><span class="cv-time">INCIDENTE 04 · 03:14:07</span></div></div>
+            <div class="mon-wall"><i class="cam"><svg viewBox="0 0 160 120" preserveAspectRatio="none"><rect width="160" height="120" fill="#0b1511"/><polygon points="0,0 58,38 102,38 160,0" fill="#13241d"/><polygon points="0,120 58,82 102,82 160,120" fill="#102019"/>
+<polygon points="0,0 58,38 58,82 0,120" fill="#0e1b16"/><polygon points="160,0 102,38 102,82 160,120" fill="#0e1b16"/>
+<rect x="58" y="38" width="44" height="44" fill="#07100c" stroke="#5fd0a0" stroke-width=".8"/><rect x="72" y="50" width="16" height="32" fill="#04080a" stroke="#5fd0a0" stroke-width=".8"/>
+<ellipse cx="70" cy="98" rx="22" ry="5" fill="#7a1f1f"/><ellipse cx="104" cy="106" rx="16" ry="4" fill="#6a1818"/><ellipse cx="44" cy="110" rx="14" ry="3.5" fill="#6a1818"/>
+<line x1="80" y1="0" x2="80" y2="6" stroke="#5fd0a0"/><rect x="72" y="6" width="16" height="3" fill="#cfe9dd"/><line x1="30" y1="22" x2="58" y2="38" stroke="#2c6a52"/><line x1="130" y1="22" x2="102" y2="38" stroke="#2c6a52"/><text x="5" y="10" font-size="7" font-family="monospace" fill="#9fe9bd">CAM 01 · TÉRREO</text><circle cx="152" cy="7" r="2.4" fill="#ff4a4a"/></svg></i><i class="cam"><svg viewBox="0 0 160 120" preserveAspectRatio="none"><rect width="160" height="120" fill="#0b1511"/><rect x="0" y="14" width="20" height="20" rx="3" fill="#18271f" stroke="#2c6a52" stroke-width=".6"/><rect x="0" y="36" width="20" height="20" rx="3" fill="#18271f" stroke="#2c6a52" stroke-width=".6"/><rect x="0" y="58" width="20" height="20" rx="3" fill="#18271f" stroke="#2c6a52" stroke-width=".6"/><rect x="22" y="14" width="20" height="20" rx="3" fill="#18271f" stroke="#2c6a52" stroke-width=".6"/><rect x="22" y="36" width="20" height="20" rx="3" fill="#18271f" stroke="#2c6a52" stroke-width=".6"/><rect x="22" y="58" width="20" height="20" rx="3" fill="#18271f" stroke="#2c6a52" stroke-width=".6"/><rect x="44" y="14" width="20" height="20" rx="3" fill="#18271f" stroke="#2c6a52" stroke-width=".6"/><rect x="44" y="36" width="20" height="20" rx="3" fill="#18271f" stroke="#2c6a52" stroke-width=".6"/><rect x="44" y="58" width="20" height="20" rx="3" fill="#18271f" stroke="#2c6a52" stroke-width=".6"/><rect x="66" y="14" width="20" height="20" rx="3" fill="#18271f" stroke="#2c6a52" stroke-width=".6"/><rect x="66" y="36" width="20" height="20" rx="3" fill="#18271f" stroke="#2c6a52" stroke-width=".6"/><rect x="66" y="58" width="20" height="20" rx="3" fill="#18271f" stroke="#2c6a52" stroke-width=".6"/><rect x="88" y="14" width="20" height="20" rx="3" fill="#18271f" stroke="#2c6a52" stroke-width=".6"/><rect x="88" y="36" width="20" height="20" rx="3" fill="#18271f" stroke="#2c6a52" stroke-width=".6"/><rect x="88" y="58" width="20" height="20" rx="3" fill="#18271f" stroke="#2c6a52" stroke-width=".6"/><rect x="110" y="14" width="20" height="20" rx="3" fill="#18271f" stroke="#2c6a52" stroke-width=".6"/><rect x="110" y="36" width="20" height="20" rx="3" fill="#18271f" stroke="#2c6a52" stroke-width=".6"/><rect x="110" y="58" width="20" height="20" rx="3" fill="#18271f" stroke="#2c6a52" stroke-width=".6"/><rect x="132" y="14" width="20" height="20" rx="3" fill="#18271f" stroke="#2c6a52" stroke-width=".6"/><rect x="132" y="36" width="20" height="20" rx="3" fill="#18271f" stroke="#2c6a52" stroke-width=".6"/><rect x="132" y="58" width="20" height="20" rx="3" fill="#18271f" stroke="#2c6a52" stroke-width=".6"/><rect x="154" y="14" width="20" height="20" rx="3" fill="#18271f" stroke="#2c6a52" stroke-width=".6"/><rect x="154" y="36" width="20" height="20" rx="3" fill="#18271f" stroke="#2c6a52" stroke-width=".6"/><rect x="154" y="58" width="20" height="20" rx="3" fill="#18271f" stroke="#2c6a52" stroke-width=".6"/><rect x="0" y="84" width="160" height="36" fill="#0e1a15"/>
+<rect x="48" y="26" width="64" height="62" fill="#050908" stroke="#5fd0a0" stroke-width="1.4"/>
+<line x1="58" y1="24" x2="62" y2="88" stroke="#5fd0a0" stroke-width="2"/><line x1="72" y1="22" x2="84" y2="60" stroke="#5fd0a0" stroke-width="2"/><line x1="94" y1="24" x2="90" y2="50" stroke="#5fd0a0" stroke-width="2"/><line x1="104" y1="26" x2="112" y2="88" stroke="#5fd0a0" stroke-width="2"/>
+<rect x="70" y="68" width="20" height="20" fill="#0f1c17" stroke="#5fd0a0" stroke-width=".8"/><circle cx="80" cy="78" r="4" fill="none" stroke="#5fd0a0"/>
+<polygon points="30,104 40,98 46,106 36,110" fill="#2a4a3c"/><polygon points="118,100 130,96 134,106 122,108" fill="#2a4a3c"/><text x="5" y="10" font-size="7" font-family="monospace" fill="#9fe9bd">CAM 02 · CONTENÇÃO</text><circle cx="152" cy="7" r="2.4" fill="#ff4a4a"/></svg></i><i class="cam"><svg viewBox="0 0 160 120" preserveAspectRatio="none"><rect width="160" height="120" fill="#0b1511"/><rect x="0" y="92" width="160" height="28" fill="#0e1a15"/><line x1="0" y1="92" x2="160" y2="92" stroke="#2c6a52"/><rect x="18" y="36" width="20" height="56" rx="10" fill="#0f3a2a" stroke="#5fd0a0" stroke-width=".9"/><rect x="21" y="62" width="14" height="28" rx="6" fill="#1e7a55" opacity=".7"/><rect x="46" y="36" width="20" height="56" rx="10" fill="#0f3a2a" stroke="#5fd0a0" stroke-width=".9"/><rect x="49" y="62" width="14" height="28" rx="6" fill="#1e7a55" opacity=".7"/>
+<rect x="74" y="36" width="20" height="56" rx="10" fill="#1a1010" stroke="#9a5a5a" stroke-width=".9" stroke-dasharray="3 2"/>
+<rect x="100" y="76" width="50" height="5" fill="#5fd0a0"/><line x1="106" y1="81" x2="106" y2="92" stroke="#5fd0a0"/><line x1="144" y1="81" x2="144" y2="92" stroke="#5fd0a0"/>
+<polygon points="112,76 118,76 122,66 108,66" fill="none" stroke="#5fd0a0"/><polygon points="130,76 138,76 136,60 132,60" fill="none" stroke="#5fd0a0"/><text x="5" y="10" font-size="7" font-family="monospace" fill="#9fe9bd">CAM 03 · LABORATÓRIO</text><circle cx="152" cy="7" r="2.4" fill="#ff4a4a"/></svg></i><i class="cam"><svg viewBox="0 0 160 120" preserveAspectRatio="none"><rect width="160" height="120" fill="#0b1511"/><rect x="0" y="0" width="160" height="120" fill="#0b1511"/><polygon points="20,104 38,104 38,116 20,116" fill="#13241d" stroke="#5fd0a0" stroke-width=".7"/><polygon points="38,92 56,92 56,104 38,104" fill="#13241d" stroke="#5fd0a0" stroke-width=".7"/><polygon points="56,80 74,80 74,92 56,92" fill="#13241d" stroke="#5fd0a0" stroke-width=".7"/><polygon points="74,68 92,68 92,80 74,80" fill="#13241d" stroke="#5fd0a0" stroke-width=".7"/><polygon points="92,56 110,56 110,68 92,68" fill="#13241d" stroke="#5fd0a0" stroke-width=".7"/><polygon points="110,44 128,44 128,56 110,56" fill="#13241d" stroke="#5fd0a0" stroke-width=".7"/><polygon points="128,32 146,32 146,44 128,44" fill="#13241d" stroke="#5fd0a0" stroke-width=".7"/><line x1="20" y1="96" x2="146" y2="14" stroke="#5fd0a0" stroke-width="1.4"/><line x1="20" y1="76" x2="146" y2="-6" stroke="#2c6a52" stroke-width="1"/>
+<rect x="120" y="6" width="26" height="30" fill="#07100c" stroke="#5fd0a0" stroke-width=".8"/><text x="5" y="10" font-size="7" font-family="monospace" fill="#9fe9bd">CAM 04 · ESCADA</text><circle cx="152" cy="7" r="2.4" fill="#ff4a4a"/></svg></i><i class="cam"><svg viewBox="0 0 160 120" preserveAspectRatio="none"><rect width="160" height="120" fill="#0b1511"/><polygon points="0,120 160,120 160,86 0,86" fill="#102019"/><rect x="0" y="20" width="160" height="66" fill="#0d1914"/>
+<rect x="16" y="40" width="34" height="46" fill="#04080a" stroke="#5fd0a0" stroke-width="1.2"/><line x1="18" y1="50" x2="48" y2="50" stroke="#2c6a52"/><line x1="18" y1="60" x2="48" y2="60" stroke="#2c6a52"/><line x1="18" y1="70" x2="48" y2="70" stroke="#2c6a52"/>
+<path d="M108 86 V54 Q125 34 142 54 V86 Z" fill="#1a0a0a" stroke="#5fd0a0" stroke-width="1.2"/><rect x="52" y="22" width="56" height="12" fill="#14201a" stroke="#5fd0a0" stroke-width=".6"/><text x="80" y="31" font-size="6" text-anchor="middle" fill="#9fe9bd" font-family="monospace">BIFURCAÇÃO</text><text x="5" y="10" font-size="7" font-family="monospace" fill="#9fe9bd">CAM 05 · BIFURCAÇÃO</text><circle cx="152" cy="7" r="2.4" fill="#ff4a4a"/></svg></i><i class="cam red"><svg viewBox="0 0 160 120" preserveAspectRatio="none"><rect width="160" height="120" fill="#161616"/><rect x="82" y="19" width="4" height="2" fill="#e8e8e8" opacity="0.9"/><rect x="137" y="12" width="3" height="2" fill="#e8e8e8" opacity="0.5"/><rect x="54" y="4" width="1" height="1" fill="#2a2a2a" opacity="0.9"/><rect x="61" y="11" width="4" height="1" fill="#d04040" opacity="0.9"/><rect x="57" y="80" width="1" height="2" fill="#d04040" opacity="0.7"/><rect x="12" y="28" width="1" height="2" fill="#9a9a9a" opacity="0.7"/><rect x="107" y="18" width="1" height="2" fill="#5a5a5a" opacity="0.5"/><rect x="46" y="13" width="2" height="1" fill="#e8e8e8" opacity="0.5"/><rect x="16" y="72" width="1" height="2" fill="#9a9a9a" opacity="0.7"/><rect x="136" y="54" width="3" height="1" fill="#d04040" opacity="0.7"/><rect x="92" y="38" width="2" height="1" fill="#9a9a9a" opacity="0.9"/><rect x="147" y="38" width="4" height="1" fill="#2a2a2a" opacity="0.7"/><rect x="155" y="9" width="1" height="2" fill="#2a2a2a" opacity="0.9"/><rect x="87" y="19" width="4" height="1" fill="#e8e8e8" opacity="0.5"/><rect x="19" y="97" width="3" height="1" fill="#5a5a5a" opacity="0.5"/><rect x="127" y="74" width="4" height="1" fill="#e8e8e8" opacity="0.7"/><rect x="121" y="89" width="1" height="1" fill="#5a5a5a" opacity="0.5"/><rect x="147" y="87" width="4" height="1" fill="#2a2a2a" opacity="0.5"/><rect x="88" y="2" width="4" height="1" fill="#9a9a9a" opacity="0.5"/><rect x="29" y="63" width="1" height="1" fill="#5a5a5a" opacity="0.9"/><rect x="63" y="50" width="4" height="1" fill="#e8e8e8" opacity="0.9"/><rect x="114" y="51" width="3" height="1" fill="#2a2a2a" opacity="0.5"/><rect x="71" y="90" width="4" height="1" fill="#2a2a2a" opacity="0.9"/><rect x="38" y="10" width="2" height="1" fill="#9a9a9a" opacity="0.5"/><rect x="59" y="1" width="4" height="2" fill="#9a9a9a" opacity="0.7"/><rect x="72" y="0" width="2" height="1" fill="#d04040" opacity="0.7"/><rect x="156" y="72" width="3" height="1" fill="#d04040" opacity="0.5"/><rect x="13" y="58" width="4" height="1" fill="#2a2a2a" opacity="0.7"/><rect x="26" y="61" width="4" height="1" fill="#9a9a9a" opacity="0.9"/><rect x="53" y="56" width="2" height="1" fill="#5a5a5a" opacity="0.5"/><rect x="13" y="13" width="1" height="2" fill="#9a9a9a" opacity="0.5"/><rect x="25" y="46" width="1" height="1" fill="#9a9a9a" opacity="0.5"/><rect x="96" y="19" width="3" height="1" fill="#d04040" opacity="0.7"/><rect x="121" y="15" width="1" height="1" fill="#2a2a2a" opacity="0.7"/><rect x="123" y="39" width="1" height="1" fill="#e8e8e8" opacity="0.5"/><rect x="87" y="94" width="3" height="1" fill="#9a9a9a" opacity="0.5"/><rect x="5" y="26" width="3" height="1" fill="#d04040" opacity="0.9"/><rect x="135" y="38" width="1" height="2" fill="#5a5a5a" opacity="0.5"/><rect x="93" y="116" width="2" height="1" fill="#9a9a9a" opacity="0.5"/><rect x="138" y="99" width="3" height="2" fill="#9a9a9a" opacity="0.5"/><rect x="49" y="103" width="2" height="1" fill="#9a9a9a" opacity="0.9"/><rect x="132" y="63" width="3" height="2" fill="#e8e8e8" opacity="0.9"/><rect x="71" y="60" width="3" height="1" fill="#d04040" opacity="0.7"/><rect x="114" y="103" width="3" height="1" fill="#e8e8e8" opacity="0.9"/><rect x="26" y="29" width="4" height="1" fill="#5a5a5a" opacity="0.9"/><rect x="123" y="79" width="1" height="1" fill="#5a5a5a" opacity="0.5"/><rect x="21" y="106" width="1" height="1" fill="#9a9a9a" opacity="0.7"/><rect x="45" y="55" width="3" height="1" fill="#2a2a2a" opacity="0.7"/><rect x="102" y="95" width="1" height="2" fill="#9a9a9a" opacity="0.9"/><rect x="32" y="3" width="2" height="2" fill="#2a2a2a" opacity="0.5"/><rect x="37" y="78" width="4" height="2" fill="#5a5a5a" opacity="0.9"/><rect x="140" y="70" width="2" height="1" fill="#e8e8e8" opacity="0.5"/><rect x="26" y="67" width="2" height="1" fill="#9a9a9a" opacity="0.9"/><rect x="7" y="32" width="2" height="1" fill="#d04040" opacity="0.9"/><rect x="150" y="41" width="3" height="2" fill="#2a2a2a" opacity="0.9"/><rect x="15" y="116" width="3" height="1" fill="#d04040" opacity="0.5"/><rect x="107" y="105" width="2" height="2" fill="#9a9a9a" opacity="0.5"/><rect x="130" y="2" width="4" height="1" fill="#d04040" opacity="0.9"/><rect x="38" y="22" width="2" height="1" fill="#d04040" opacity="0.5"/><rect x="30" y="71" width="1" height="1" fill="#d04040" opacity="0.5"/><rect x="142" y="61" width="1" height="2" fill="#e8e8e8" opacity="0.9"/><rect x="48" y="35" width="1" height="1" fill="#d04040" opacity="0.7"/><rect x="143" y="3" width="1" height="1" fill="#5a5a5a" opacity="0.5"/><rect x="129" y="77" width="2" height="2" fill="#5a5a5a" opacity="0.7"/><rect x="130" y="68" width="4" height="2" fill="#9a9a9a" opacity="0.5"/><rect x="133" y="112" width="3" height="2" fill="#9a9a9a" opacity="0.7"/><rect x="35" y="53" width="1" height="1" fill="#2a2a2a" opacity="0.7"/><rect x="18" y="85" width="2" height="1" fill="#e8e8e8" opacity="0.9"/><rect x="77" y="100" width="1" height="1" fill="#5a5a5a" opacity="0.9"/><rect x="64" y="113" width="2" height="1" fill="#9a9a9a" opacity="0.5"/><rect x="24" y="50" width="4" height="1" fill="#9a9a9a" opacity="0.9"/><rect x="110" y="65" width="4" height="1" fill="#2a2a2a" opacity="0.9"/><rect x="91" y="40" width="1" height="2" fill="#5a5a5a" opacity="0.9"/><rect x="86" y="70" width="4" height="1" fill="#e8e8e8" opacity="0.7"/><rect x="84" y="66" width="3" height="2" fill="#e8e8e8" opacity="0.9"/><rect x="58" y="112" width="1" height="1" fill="#5a5a5a" opacity="0.7"/><rect x="10" y="115" width="2" height="1" fill="#9a9a9a" opacity="0.7"/><rect x="66" y="51" width="2" height="2" fill="#d04040" opacity="0.5"/><rect x="126" y="89" width="3" height="1" fill="#5a5a5a" opacity="0.9"/><rect x="46" y="54" width="1" height="1" fill="#e8e8e8" opacity="0.5"/><rect x="22" y="102" width="3" height="1" fill="#d04040" opacity="0.9"/><rect x="17" y="33" width="1" height="1" fill="#e8e8e8" opacity="0.7"/><rect x="141" y="53" width="3" height="2" fill="#9a9a9a" opacity="0.9"/><rect x="134" y="90" width="2" height="1" fill="#9a9a9a" opacity="0.7"/><rect x="12" y="23" width="2" height="1" fill="#5a5a5a" opacity="0.5"/><rect x="52" y="37" width="4" height="2" fill="#9a9a9a" opacity="0.7"/><rect x="88" y="102" width="1" height="1" fill="#e8e8e8" opacity="0.9"/><rect x="4" y="93" width="2" height="2" fill="#2a2a2a" opacity="0.9"/><rect x="114" y="13" width="4" height="2" fill="#2a2a2a" opacity="0.5"/><rect x="100" y="64" width="3" height="2" fill="#9a9a9a" opacity="0.9"/><rect x="87" y="25" width="2" height="1" fill="#5a5a5a" opacity="0.9"/><rect x="33" y="1" width="1" height="2" fill="#5a5a5a" opacity="0.7"/><rect x="41" y="7" width="1" height="2" fill="#2a2a2a" opacity="0.5"/><rect x="72" y="76" width="2" height="2" fill="#5a5a5a" opacity="0.9"/><rect x="117" y="23" width="2" height="1" fill="#2a2a2a" opacity="0.9"/><rect x="67" y="46" width="3" height="2" fill="#5a5a5a" opacity="0.9"/><rect x="8" y="112" width="3" height="1" fill="#5a5a5a" opacity="0.9"/><rect x="0" y="42" width="4" height="1" fill="#2a2a2a" opacity="0.7"/><rect x="128" y="83" width="2" height="1" fill="#d04040" opacity="0.9"/><rect x="23" y="33" width="1" height="1" fill="#2a2a2a" opacity="0.5"/><rect x="10" y="50" width="1" height="1" fill="#5a5a5a" opacity="0.5"/><rect x="59" y="10" width="2" height="2" fill="#d04040" opacity="0.7"/><rect x="83" y="92" width="4" height="1" fill="#5a5a5a" opacity="0.5"/><rect x="158" y="82" width="2" height="1" fill="#d04040" opacity="0.5"/><rect x="109" y="93" width="2" height="2" fill="#d04040" opacity="0.5"/><rect x="4" y="105" width="2" height="1" fill="#e8e8e8" opacity="0.9"/><rect x="34" y="81" width="3" height="1" fill="#2a2a2a" opacity="0.7"/><rect x="142" y="6" width="1" height="2" fill="#d04040" opacity="0.5"/><rect x="62" y="62" width="3" height="1" fill="#2a2a2a" opacity="0.9"/><rect x="128" y="114" width="1" height="2" fill="#d04040" opacity="0.9"/><rect x="121" y="32" width="1" height="1" fill="#9a9a9a" opacity="0.5"/><rect x="52" y="29" width="4" height="1" fill="#2a2a2a" opacity="0.9"/><rect x="122" y="116" width="3" height="1" fill="#d04040" opacity="0.5"/><rect x="50" y="9" width="2" height="1" fill="#5a5a5a" opacity="0.5"/><rect x="77" y="79" width="2" height="1" fill="#2a2a2a" opacity="0.9"/><rect x="124" y="34" width="1" height="2" fill="#9a9a9a" opacity="0.5"/><rect x="125" y="37" width="3" height="1" fill="#2a2a2a" opacity="0.7"/><rect x="30" y="114" width="2" height="1" fill="#e8e8e8" opacity="0.7"/><rect x="4" y="37" width="4" height="1" fill="#d04040" opacity="0.7"/><rect x="68" y="49" width="2" height="1" fill="#e8e8e8" opacity="0.5"/><rect x="23" y="18" width="3" height="1" fill="#9a9a9a" opacity="0.5"/><rect x="130" y="35" width="1" height="2" fill="#5a5a5a" opacity="0.9"/><rect x="127" y="114" width="4" height="1" fill="#e8e8e8" opacity="0.9"/><rect x="0" y="62" width="4" height="1" fill="#5a5a5a" opacity="0.5"/><rect x="36" y="53" width="3" height="1" fill="#5a5a5a" opacity="0.9"/><rect x="84" y="0" width="3" height="1" fill="#2a2a2a" opacity="0.9"/><rect x="50" y="91" width="1" height="2" fill="#5a5a5a" opacity="0.7"/><rect x="95" y="8" width="4" height="1" fill="#d04040" opacity="0.9"/><rect x="92" y="118" width="4" height="1" fill="#e8e8e8" opacity="0.7"/><rect x="26" y="6" width="3" height="2" fill="#9a9a9a" opacity="0.9"/><rect x="68" y="55" width="3" height="1" fill="#5a5a5a" opacity="0.7"/><rect x="7" y="103" width="4" height="2" fill="#d04040" opacity="0.9"/><rect x="20" y="6" width="4" height="1" fill="#d04040" opacity="0.9"/><rect x="73" y="62" width="1" height="2" fill="#9a9a9a" opacity="0.9"/><rect x="120" y="53" width="3" height="1" fill="#5a5a5a" opacity="0.7"/><rect x="66" y="51" width="2" height="1" fill="#2a2a2a" opacity="0.5"/><rect x="100" y="15" width="2" height="2" fill="#9a9a9a" opacity="0.9"/><rect x="53" y="64" width="4" height="2" fill="#9a9a9a" opacity="0.7"/><rect x="85" y="97" width="4" height="1" fill="#9a9a9a" opacity="0.5"/><rect x="49" y="31" width="1" height="1" fill="#5a5a5a" opacity="0.5"/><rect x="23" y="40" width="2" height="1" fill="#5a5a5a" opacity="0.5"/><rect x="51" y="113" width="1" height="2" fill="#2a2a2a" opacity="0.7"/><rect x="105" y="95" width="2" height="1" fill="#5a5a5a" opacity="0.7"/><rect x="15" y="63" width="3" height="2" fill="#5a5a5a" opacity="0.9"/><rect x="128" y="67" width="2" height="1" fill="#5a5a5a" opacity="0.9"/><rect x="98" y="51" width="4" height="1" fill="#5a5a5a" opacity="0.9"/><rect x="32" y="4" width="4" height="2" fill="#2a2a2a" opacity="0.5"/><rect x="125" y="0" width="1" height="1" fill="#d04040" opacity="0.7"/><rect x="114" y="31" width="1" height="1" fill="#9a9a9a" opacity="0.9"/><rect x="133" y="87" width="1" height="2" fill="#2a2a2a" opacity="0.9"/><rect x="141" y="99" width="1" height="1" fill="#9a9a9a" opacity="0.9"/><rect x="145" y="117" width="1" height="2" fill="#5a5a5a" opacity="0.9"/><rect x="64" y="67" width="4" height="2" fill="#e8e8e8" opacity="0.9"/><rect x="18" y="38" width="2" height="1" fill="#5a5a5a" opacity="0.9"/><rect x="153" y="0" width="1" height="2" fill="#5a5a5a" opacity="0.7"/><rect x="71" y="40" width="2" height="1" fill="#d04040" opacity="0.9"/><rect x="140" y="31" width="1" height="1" fill="#5a5a5a" opacity="0.9"/><rect x="5" y="24" width="4" height="2" fill="#2a2a2a" opacity="0.9"/><rect x="65" y="29" width="4" height="1" fill="#9a9a9a" opacity="0.7"/><rect x="8" y="89" width="3" height="2" fill="#2a2a2a" opacity="0.7"/><rect x="101" y="25" width="1" height="1" fill="#d04040" opacity="0.9"/><rect x="52" y="63" width="2" height="1" fill="#9a9a9a" opacity="0.9"/><rect x="119" y="28" width="3" height="1" fill="#e8e8e8" opacity="0.5"/><rect x="126" y="78" width="2" height="1" fill="#2a2a2a" opacity="0.7"/><rect x="14" y="76" width="2" height="1" fill="#e8e8e8" opacity="0.9"/><rect x="6" y="76" width="2" height="1" fill="#e8e8e8" opacity="0.5"/><rect x="15" y="23" width="4" height="1" fill="#5a5a5a" opacity="0.5"/><rect x="28" y="10" width="2" height="1" fill="#9a9a9a" opacity="0.9"/><rect x="134" y="95" width="4" height="1" fill="#5a5a5a" opacity="0.5"/><rect x="96" y="107" width="3" height="1" fill="#2a2a2a" opacity="0.9"/><rect x="27" y="0" width="1" height="1" fill="#e8e8e8" opacity="0.7"/><rect x="107" y="113" width="1" height="2" fill="#9a9a9a" opacity="0.7"/><rect x="91" y="98" width="3" height="1" fill="#e8e8e8" opacity="0.9"/><rect x="121" y="25" width="3" height="2" fill="#2a2a2a" opacity="0.9"/><rect x="82" y="46" width="4" height="1" fill="#2a2a2a" opacity="0.9"/><rect x="103" y="5" width="4" height="1" fill="#2a2a2a" opacity="0.9"/><rect x="15" y="32" width="2" height="2" fill="#e8e8e8" opacity="0.5"/><rect x="86" y="46" width="3" height="1" fill="#d04040" opacity="0.9"/><rect x="67" y="95" width="3" height="1" fill="#5a5a5a" opacity="0.9"/><rect x="152" y="117" width="1" height="1" fill="#9a9a9a" opacity="0.9"/><rect x="121" y="91" width="4" height="1" fill="#5a5a5a" opacity="0.7"/><rect x="126" y="16" width="4" height="1" fill="#e8e8e8" opacity="0.5"/><rect x="77" y="105" width="2" height="2" fill="#9a9a9a" opacity="0.7"/><rect x="81" y="58" width="3" height="2" fill="#e8e8e8" opacity="0.5"/><rect x="50" y="50" width="2" height="1" fill="#2a2a2a" opacity="0.9"/><rect x="8" y="61" width="3" height="1" fill="#2a2a2a" opacity="0.9"/><rect x="18" y="33" width="1" height="1" fill="#e8e8e8" opacity="0.7"/><rect x="127" y="90" width="4" height="1" fill="#9a9a9a" opacity="0.9"/><rect x="106" y="58" width="2" height="2" fill="#d04040" opacity="0.5"/><rect x="31" y="99" width="3" height="1" fill="#5a5a5a" opacity="0.5"/><rect x="68" y="47" width="3" height="2" fill="#5a5a5a" opacity="0.9"/><rect x="112" y="31" width="2" height="1" fill="#9a9a9a" opacity="0.9"/><rect x="72" y="113" width="2" height="1" fill="#e8e8e8" opacity="0.7"/><rect x="64" y="31" width="2" height="2" fill="#e8e8e8" opacity="0.5"/><rect x="118" y="4" width="1" height="1" fill="#2a2a2a" opacity="0.9"/><rect x="114" y="117" width="3" height="1" fill="#5a5a5a" opacity="0.9"/><rect x="30" y="6" width="2" height="2" fill="#d04040" opacity="0.9"/><rect x="19" y="47" width="2" height="1" fill="#d04040" opacity="0.7"/><rect x="1" y="13" width="3" height="1" fill="#e8e8e8" opacity="0.7"/><rect x="87" y="18" width="1" height="1" fill="#5a5a5a" opacity="0.9"/><rect x="153" y="93" width="2" height="1" fill="#5a5a5a" opacity="0.7"/><rect x="95" y="23" width="3" height="1" fill="#9a9a9a" opacity="0.9"/><rect x="126" y="70" width="4" height="1" fill="#2a2a2a" opacity="0.9"/><rect x="101" y="84" width="2" height="2" fill="#d04040" opacity="0.9"/><rect x="41" y="50" width="3" height="1" fill="#5a5a5a" opacity="0.5"/><rect x="78" y="53" width="1" height="1" fill="#d04040" opacity="0.7"/><rect x="106" y="53" width="1" height="1" fill="#9a9a9a" opacity="0.7"/><rect x="103" y="26" width="1" height="1" fill="#9a9a9a" opacity="0.7"/><rect x="29" y="105" width="1" height="1" fill="#d04040" opacity="0.7"/><rect x="117" y="98" width="2" height="1" fill="#e8e8e8" opacity="0.9"/><rect x="141" y="18" width="4" height="1" fill="#d04040" opacity="0.5"/><rect x="94" y="94" width="2" height="1" fill="#5a5a5a" opacity="0.7"/><rect x="41" y="66" width="2" height="1" fill="#e8e8e8" opacity="0.7"/><rect x="125" y="96" width="2" height="1" fill="#9a9a9a" opacity="0.9"/><rect x="123" y="40" width="1" height="2" fill="#2a2a2a" opacity="0.9"/><rect x="158" y="88" width="2" height="2" fill="#9a9a9a" opacity="0.5"/><rect x="103" y="78" width="2" height="1" fill="#9a9a9a" opacity="0.5"/><rect x="55" y="5" width="4" height="2" fill="#9a9a9a" opacity="0.7"/><rect x="91" y="15" width="2" height="1" fill="#9a9a9a" opacity="0.9"/><rect x="143" y="107" width="1" height="2" fill="#5a5a5a" opacity="0.9"/><rect x="99" y="76" width="4" height="2" fill="#5a5a5a" opacity="0.5"/><rect x="107" y="39" width="2" height="1" fill="#2a2a2a" opacity="0.5"/><rect x="94" y="57" width="4" height="1" fill="#e8e8e8" opacity="0.9"/><rect x="158" y="62" width="4" height="1" fill="#2a2a2a" opacity="0.5"/><rect x="117" y="107" width="2" height="1" fill="#2a2a2a" opacity="0.9"/><rect x="17" y="16" width="3" height="1" fill="#5a5a5a" opacity="0.9"/><rect x="113" y="64" width="1" height="1" fill="#9a9a9a" opacity="0.9"/><rect x="80" y="99" width="1" height="1" fill="#d04040" opacity="0.7"/><rect x="34" y="3" width="1" height="2" fill="#e8e8e8" opacity="0.9"/><rect x="33" y="113" width="4" height="1" fill="#9a9a9a" opacity="0.5"/><rect x="56" y="8" width="3" height="2" fill="#5a5a5a" opacity="0.9"/><rect x="82" y="114" width="3" height="1" fill="#9a9a9a" opacity="0.7"/><rect x="128" y="117" width="4" height="1" fill="#d04040" opacity="0.7"/><rect x="157" y="64" width="2" height="1" fill="#5a5a5a" opacity="0.9"/><rect x="50" y="23" width="4" height="1" fill="#5a5a5a" opacity="0.5"/><rect x="83" y="114" width="4" height="1" fill="#5a5a5a" opacity="0.9"/><rect x="135" y="6" width="3" height="1" fill="#d04040" opacity="0.5"/><rect x="148" y="88" width="1" height="1" fill="#d04040" opacity="0.5"/><rect x="100" y="94" width="3" height="1" fill="#2a2a2a" opacity="0.7"/><rect x="147" y="18" width="3" height="1" fill="#e8e8e8" opacity="0.7"/><rect x="58" y="22" width="1" height="1" fill="#d04040" opacity="0.7"/><rect x="79" y="81" width="3" height="2" fill="#e8e8e8" opacity="0.5"/><rect x="8" y="28" width="2" height="1" fill="#d04040" opacity="0.5"/><rect x="110" y="53" width="3" height="1" fill="#9a9a9a" opacity="0.7"/><rect x="58" y="78" width="1" height="1" fill="#e8e8e8" opacity="0.9"/><rect x="145" y="45" width="3" height="1" fill="#d04040" opacity="0.7"/><rect x="136" y="28" width="4" height="2" fill="#5a5a5a" opacity="0.5"/><rect x="34" y="26" width="3" height="2" fill="#2a2a2a" opacity="0.9"/><rect x="34" y="1" width="2" height="2" fill="#9a9a9a" opacity="0.7"/><rect x="24" y="8" width="2" height="2" fill="#5a5a5a" opacity="0.7"/><rect x="67" y="1" width="1" height="2" fill="#d04040" opacity="0.7"/><rect x="152" y="82" width="4" height="2" fill="#d04040" opacity="0.5"/><rect x="126" y="31" width="2" height="1" fill="#e8e8e8" opacity="0.9"/><rect x="136" y="3" width="4" height="1" fill="#9a9a9a" opacity="0.9"/><rect x="14" y="116" width="1" height="1" fill="#d04040" opacity="0.5"/><rect x="50" y="18" width="4" height="1" fill="#d04040" opacity="0.5"/><rect x="129" y="82" width="4" height="2" fill="#9a9a9a" opacity="0.5"/><rect x="79" y="8" width="3" height="2" fill="#e8e8e8" opacity="0.5"/><rect x="122" y="91" width="1" height="1" fill="#2a2a2a" opacity="0.5"/><rect x="119" y="10" width="4" height="1" fill="#9a9a9a" opacity="0.9"/><rect x="66" y="29" width="1" height="1" fill="#5a5a5a" opacity="0.5"/><rect x="67" y="91" width="1" height="1" fill="#d04040" opacity="0.5"/><rect x="111" y="87" width="3" height="1" fill="#9a9a9a" opacity="0.9"/><rect x="129" y="1" width="2" height="1" fill="#9a9a9a" opacity="0.5"/><rect x="51" y="20" width="3" height="1" fill="#2a2a2a" opacity="0.7"/><rect x="153" y="30" width="4" height="2" fill="#d04040" opacity="0.7"/><rect x="120" y="107" width="1" height="1" fill="#2a2a2a" opacity="0.5"/><rect x="59" y="73" width="3" height="1" fill="#2a2a2a" opacity="0.5"/><rect x="149" y="9" width="2" height="1" fill="#e8e8e8" opacity="0.9"/><rect x="28" y="13" width="2" height="1" fill="#9a9a9a" opacity="0.5"/><rect x="7" y="3" width="1" height="1" fill="#e8e8e8" opacity="0.5"/><rect x="17" y="94" width="1" height="1" fill="#d04040" opacity="0.7"/><rect x="51" y="104" width="1" height="2" fill="#2a2a2a" opacity="0.9"/><rect x="63" y="26" width="2" height="1" fill="#e8e8e8" opacity="0.9"/><rect x="22" y="105" width="3" height="1" fill="#e8e8e8" opacity="0.9"/><rect x="25" y="101" width="2" height="1" fill="#5a5a5a" opacity="0.7"/><rect x="108" y="33" width="1" height="1" fill="#5a5a5a" opacity="0.7"/><rect x="12" y="91" width="3" height="1" fill="#d04040" opacity="0.5"/><rect x="121" y="108" width="3" height="2" fill="#e8e8e8" opacity="0.7"/><rect x="7" y="55" width="1" height="1" fill="#2a2a2a" opacity="0.5"/><rect x="12" y="68" width="2" height="2" fill="#e8e8e8" opacity="0.5"/><rect x="73" y="21" width="4" height="1" fill="#d04040" opacity="0.9"/><rect x="73" y="97" width="1" height="1" fill="#5a5a5a" opacity="0.7"/><rect x="24" y="62" width="2" height="1" fill="#d04040" opacity="0.7"/><rect x="131" y="33" width="2" height="1" fill="#9a9a9a" opacity="0.5"/><rect x="59" y="63" width="2" height="1" fill="#e8e8e8" opacity="0.7"/><rect x="143" y="100" width="1" height="2" fill="#5a5a5a" opacity="0.7"/><rect x="24" y="51" width="4" height="2" fill="#e8e8e8" opacity="0.7"/><rect x="6" y="47" width="2" height="1" fill="#5a5a5a" opacity="0.7"/><rect x="139" y="64" width="2" height="1" fill="#9a9a9a" opacity="0.7"/><rect x="32" y="68" width="1" height="1" fill="#d04040" opacity="0.7"/><rect x="133" y="19" width="4" height="2" fill="#d04040" opacity="0.5"/><rect x="82" y="21" width="4" height="1" fill="#5a5a5a" opacity="0.5"/><rect x="59" y="16" width="3" height="1" fill="#9a9a9a" opacity="0.5"/><rect x="49" y="34" width="3" height="2" fill="#d04040" opacity="0.9"/><rect x="39" y="31" width="3" height="2" fill="#d04040" opacity="0.7"/><rect x="41" y="30" width="3" height="1" fill="#5a5a5a" opacity="0.5"/><rect x="26" y="21" width="1" height="1" fill="#2a2a2a" opacity="0.9"/><rect x="37" y="101" width="3" height="2" fill="#5a5a5a" opacity="0.7"/><rect x="70" y="25" width="1" height="2" fill="#e8e8e8" opacity="0.7"/><rect x="52" y="113" width="4" height="1" fill="#e8e8e8" opacity="0.9"/><rect x="102" y="109" width="4" height="2" fill="#9a9a9a" opacity="0.5"/><rect x="75" y="59" width="1" height="1" fill="#5a5a5a" opacity="0.5"/><rect x="103" y="0" width="2" height="1" fill="#d04040" opacity="0.5"/><rect x="107" y="108" width="2" height="2" fill="#d04040" opacity="0.9"/><rect x="46" y="82" width="1" height="1" fill="#2a2a2a" opacity="0.7"/><rect x="66" y="80" width="1" height="1" fill="#9a9a9a" opacity="0.7"/><rect x="40" y="32" width="4" height="1" fill="#2a2a2a" opacity="0.9"/><rect x="104" y="66" width="2" height="2" fill="#5a5a5a" opacity="0.9"/><rect x="99" y="106" width="4" height="1" fill="#e8e8e8" opacity="0.7"/><rect x="139" y="27" width="2" height="2" fill="#9a9a9a" opacity="0.5"/><rect x="89" y="12" width="4" height="2" fill="#9a9a9a" opacity="0.5"/><rect x="121" y="65" width="1" height="2" fill="#5a5a5a" opacity="0.5"/><rect x="87" y="52" width="4" height="1" fill="#9a9a9a" opacity="0.7"/><rect x="131" y="97" width="1" height="2" fill="#d04040" opacity="0.7"/><rect x="14" y="32" width="3" height="1" fill="#2a2a2a" opacity="0.9"/><rect x="3" y="9" width="4" height="1" fill="#5a5a5a" opacity="0.5"/><rect x="67" y="13" width="2" height="1" fill="#2a2a2a" opacity="0.5"/><rect x="56" y="102" width="4" height="1" fill="#9a9a9a" opacity="0.9"/><rect x="33" y="118" width="1" height="2" fill="#9a9a9a" opacity="0.7"/><rect x="143" y="92" width="2" height="1" fill="#5a5a5a" opacity="0.5"/><rect x="105" y="59" width="3" height="2" fill="#9a9a9a" opacity="0.7"/><rect x="90" y="100" width="2" height="1" fill="#2a2a2a" opacity="0.5"/><rect x="64" y="54" width="2" height="1" fill="#e8e8e8" opacity="0.5"/><rect x="71" y="45" width="2" height="2" fill="#5a5a5a" opacity="0.7"/><rect x="122" y="62" width="4" height="2" fill="#e8e8e8" opacity="0.5"/><rect x="92" y="19" width="3" height="1" fill="#e8e8e8" opacity="0.9"/><rect x="144" y="115" width="3" height="1" fill="#d04040" opacity="0.7"/><rect x="149" y="1" width="1" height="1" fill="#e8e8e8" opacity="0.5"/><rect x="75" y="32" width="1" height="2" fill="#9a9a9a" opacity="0.9"/><rect x="47" y="99" width="4" height="1" fill="#9a9a9a" opacity="0.9"/><rect x="103" y="101" width="2" height="2" fill="#d04040" opacity="0.9"/><rect x="140" y="100" width="3" height="1" fill="#2a2a2a" opacity="0.5"/><rect x="54" y="67" width="1" height="2" fill="#2a2a2a" opacity="0.5"/><rect x="29" y="71" width="1" height="1" fill="#2a2a2a" opacity="0.9"/><rect x="35" y="60" width="4" height="2" fill="#e8e8e8" opacity="0.7"/><rect x="119" y="115" width="2" height="2" fill="#2a2a2a" opacity="0.9"/><rect x="127" y="21" width="1" height="1" fill="#5a5a5a" opacity="0.7"/><rect x="144" y="63" width="3" height="1" fill="#5a5a5a" opacity="0.7"/><rect x="107" y="86" width="1" height="1" fill="#5a5a5a" opacity="0.5"/><rect x="7" y="2" width="1" height="2" fill="#5a5a5a" opacity="0.9"/><rect x="130" y="61" width="4" height="1" fill="#e8e8e8" opacity="0.9"/><rect x="106" y="80" width="2" height="1" fill="#e8e8e8" opacity="0.5"/><rect x="93" y="43" width="4" height="2" fill="#d04040" opacity="0.9"/><rect x="72" y="55" width="3" height="1" fill="#5a5a5a" opacity="0.5"/><rect x="13" y="105" width="3" height="1" fill="#5a5a5a" opacity="0.7"/><rect x="103" y="42" width="3" height="2" fill="#5a5a5a" opacity="0.9"/><rect x="126" y="101" width="1" height="1" fill="#9a9a9a" opacity="0.7"/><rect x="76" y="16" width="1" height="1" fill="#2a2a2a" opacity="0.5"/><rect x="141" y="113" width="4" height="2" fill="#d04040" opacity="0.9"/><rect x="102" y="38" width="1" height="1" fill="#e8e8e8" opacity="0.9"/><rect x="121" y="77" width="1" height="2" fill="#d04040" opacity="0.5"/><rect x="96" y="78" width="2" height="2" fill="#d04040" opacity="0.5"/><rect x="21" y="27" width="1" height="2" fill="#2a2a2a" opacity="0.5"/><rect x="44" y="12" width="2" height="1" fill="#2a2a2a" opacity="0.9"/><rect x="3" y="47" width="2" height="1" fill="#d04040" opacity="0.5"/><rect x="66" y="110" width="3" height="1" fill="#2a2a2a" opacity="0.9"/><rect x="81" y="2" width="4" height="2" fill="#d04040" opacity="0.9"/><rect x="127" y="72" width="1" height="1" fill="#2a2a2a" opacity="0.5"/><rect x="103" y="57" width="1" height="1" fill="#2a2a2a" opacity="0.5"/><rect x="151" y="84" width="2" height="1" fill="#2a2a2a" opacity="0.5"/><rect x="26" y="10" width="4" height="1" fill="#9a9a9a" opacity="0.5"/><rect x="3" y="54" width="1" height="1" fill="#e8e8e8" opacity="0.9"/><rect x="55" y="111" width="1" height="1" fill="#2a2a2a" opacity="0.9"/><rect x="70" y="92" width="2" height="1" fill="#9a9a9a" opacity="0.9"/><rect x="93" y="99" width="2" height="2" fill="#e8e8e8" opacity="0.7"/><rect x="142" y="90" width="4" height="1" fill="#5a5a5a" opacity="0.9"/><rect x="8" y="1" width="1" height="1" fill="#d04040" opacity="0.9"/><rect x="99" y="39" width="3" height="2" fill="#d04040" opacity="0.9"/><rect x="124" y="77" width="1" height="1" fill="#5a5a5a" opacity="0.5"/><rect x="112" y="60" width="2" height="1" fill="#e8e8e8" opacity="0.7"/><rect x="41" y="80" width="4" height="1" fill="#2a2a2a" opacity="0.7"/><rect x="69" y="100" width="3" height="1" fill="#5a5a5a" opacity="0.9"/><rect x="153" y="42" width="1" height="1" fill="#d04040" opacity="0.7"/><rect x="149" y="54" width="2" height="1" fill="#2a2a2a" opacity="0.5"/><rect x="96" y="77" width="2" height="1" fill="#5a5a5a" opacity="0.5"/><rect x="0" y="41" width="3" height="1" fill="#2a2a2a" opacity="0.9"/><rect x="150" y="117" width="1" height="1" fill="#9a9a9a" opacity="0.5"/><rect x="37" y="35" width="4" height="1" fill="#d04040" opacity="0.9"/><rect x="138" y="70" width="4" height="1" fill="#9a9a9a" opacity="0.5"/><rect x="59" y="39" width="1" height="2" fill="#2a2a2a" opacity="0.7"/><rect x="52" y="118" width="3" height="2" fill="#e8e8e8" opacity="0.7"/><rect x="117" y="69" width="1" height="2" fill="#5a5a5a" opacity="0.9"/><rect x="59" y="50" width="3" height="2" fill="#5a5a5a" opacity="0.7"/><rect x="129" y="75" width="2" height="1" fill="#9a9a9a" opacity="0.9"/><rect x="23" y="23" width="3" height="1" fill="#d04040" opacity="0.5"/><rect x="91" y="51" width="2" height="1" fill="#e8e8e8" opacity="0.7"/><rect x="95" y="110" width="1" height="1" fill="#2a2a2a" opacity="0.9"/><rect x="39" y="40" width="1" height="1" fill="#5a5a5a" opacity="0.5"/><rect x="155" y="2" width="1" height="1" fill="#9a9a9a" opacity="0.5"/><rect x="124" y="75" width="2" height="1" fill="#5a5a5a" opacity="0.7"/><rect x="24" y="57" width="2" height="1" fill="#e8e8e8" opacity="0.7"/><rect x="51" y="23" width="4" height="1" fill="#e8e8e8" opacity="0.9"/><rect x="8" y="71" width="3" height="2" fill="#2a2a2a" opacity="0.7"/><rect x="16" y="110" width="4" height="1" fill="#e8e8e8" opacity="0.7"/><rect x="81" y="72" width="2" height="2" fill="#e8e8e8" opacity="0.5"/><rect x="129" y="50" width="2" height="1" fill="#9a9a9a" opacity="0.7"/><rect x="60" y="92" width="2" height="1" fill="#e8e8e8" opacity="0.7"/><rect x="90" y="7" width="1" height="1" fill="#5a5a5a" opacity="0.5"/><rect x="123" y="7" width="1" height="1" fill="#5a5a5a" opacity="0.9"/><rect x="50" y="86" width="3" height="2" fill="#d04040" opacity="0.7"/><rect x="26" y="60" width="3" height="1" fill="#5a5a5a" opacity="0.7"/><rect x="31" y="47" width="4" height="1" fill="#9a9a9a" opacity="0.7"/><rect x="61" y="103" width="2" height="2" fill="#e8e8e8" opacity="0.7"/><rect x="49" y="102" width="1" height="1" fill="#9a9a9a" opacity="0.9"/><rect x="158" y="110" width="3" height="2" fill="#9a9a9a" opacity="0.7"/><rect x="24" y="118" width="4" height="1" fill="#e8e8e8" opacity="0.7"/><rect x="86" y="41" width="2" height="1" fill="#e8e8e8" opacity="0.5"/><rect x="93" y="18" width="3" height="1" fill="#e8e8e8" opacity="0.9"/><rect x="115" y="70" width="2" height="1" fill="#9a9a9a" opacity="0.7"/><rect x="107" y="52" width="2" height="1" fill="#e8e8e8" opacity="0.7"/><rect x="146" y="107" width="3" height="1" fill="#9a9a9a" opacity="0.7"/><rect x="125" y="13" width="3" height="1" fill="#2a2a2a" opacity="0.9"/><rect x="39" y="65" width="1" height="2" fill="#9a9a9a" opacity="0.5"/><rect x="122" y="106" width="3" height="1" fill="#5a5a5a" opacity="0.9"/><rect x="93" y="55" width="3" height="1" fill="#9a9a9a" opacity="0.9"/><rect x="99" y="37" width="4" height="1" fill="#e8e8e8" opacity="0.5"/><rect x="75" y="18" width="1" height="1" fill="#d04040" opacity="0.7"/><rect x="130" y="17" width="4" height="1" fill="#d04040" opacity="0.7"/><rect x="47" y="46" width="4" height="1" fill="#2a2a2a" opacity="0.9"/><rect x="0" y="14" width="160" height="6" fill="#cfcfcf" opacity=".5"/><rect x="0" y="33" width="160" height="3" fill="#202020" opacity=".5"/><rect x="0" y="52" width="160" height="9" fill="#8a8a8a" opacity=".5"/><rect x="0" y="71" width="160" height="4" fill="#101010" opacity=".5"/><rect x="0" y="88" width="160" height="7" fill="#bcbcbc" opacity=".5"/><rect x="0" y="104" width="160" height="3" fill="#303030" opacity=".5"/><polyline points="82,0 74,22 90,40 70,64 92,84 80,120" fill="none" stroke="#000" stroke-width="2.2"/><polyline points="74,22 52,30 40,52" fill="none" stroke="#000" stroke-width="1.4"/><polyline points="90,40 118,46 130,70" fill="none" stroke="#000" stroke-width="1.4"/><polyline points="82,0 74,22 90,40 70,64 92,84 80,120" fill="none" stroke="#fff" stroke-width=".5" opacity=".6"/><rect x="38" y="50" width="84" height="20" fill="#000" opacity=".78"/><text x="80" y="64" font-size="11" text-anchor="middle" font-family="monospace" font-weight="bold" fill="#ff4a4a">SEM SINAL</text><text x="5" y="10" font-size="7" font-family="monospace" fill="#ff9a9a">CAM 06 · ERRO</text><circle cx="152" cy="7" r="2.4" fill="#ff4a4a"/></svg></i></div>
+            <div class="surv-desk"><i class="surv-pc" style="left:6%"></i><i class="surv-pc" style="left:30%"></i><i class="ctl-panel"></i></div>
+            <div id="survBack" class="fnaf-door door-left" style=""><div class="door-frame"><div class="door-status-light green"></div></div><div class="door-shutter"><div class="slat"></div><div class="slat"></div><div class="slat"></div><div class="slat"></div><div class="slat"></div></div></div>
+        </div>
+
+        <!-- SALA 8: LABORATÓRIO (Espécime 064) -->
+        <div id="room8" class="room room-lab hidden">
+            <div class="wall lab-wall"></div><div class="floor lab-floor"></div>
+            <div class="hub-sign" style="top:13%"><b>LABORATÓRIO DE PESQUISAS</b></div>
+            <!-- Dutos de ventilação no teto (o 064 está lá dentro) -->
+            <div class="lab-ceiling">
+                <div class="duct main"></div>
+                <div class="duct drop" style="left:11%"></div>
+                <div class="duct drop" style="left:47%"></div>
+                <div class="vent-grille deco" style="left:26%"><i></i><i></i><i></i><i></i></div>
+                <div class="vent-grille deco" style="left:64%"><i></i><i></i><i></i><i></i></div>
+                <div id="ventHole" class="vent-hole"></div>
+                <div id="ventGrille" class="vent-grille"><i></i><i></i><i></i><i></i></div>
+            </div>
+            <div class="lab-biohazard">☣</div>
+            <div class="lab-shelf" style="left:36%"><i class="flask f1" style="left:10%"></i><i class="flask f2" style="left:40%"></i><i class="flask f3" style="left:72%"></i></div>
+            <div class="lab-shelf" style="left:62%"><i class="flask f2" style="left:14%"></i><i class="flask f1" style="left:50%"></i></div>
+            <div class="capsule" style="left:15%"><i class="liq"></i><i class="bub"></i></div>
+            <div class="capsule" style="left:21%"><i class="liq"></i><i class="bub"></i></div>
+            <div class="capsule broken" style="left:27%"><i class="liq"></i><span>064</span></div>
+            <div class="lab-table" style="left:38%"><div class="lt-top"></div><i class="micro"></i><i class="flask f1" style="left:42%"></i><i class="rack"></i><i id="note0" class="note-paper"></i></div><div class="lab-table" style="left:54%"><div class="lt-top"></div><i class="micro"></i><i class="flask f2" style="left:42%"></i><i class="rack"></i><i id="note1" class="note-paper"></i></div><div class="lab-table" style="left:70%"><div class="lt-top"></div><i class="micro"></i><i class="flask f3" style="left:42%"></i><i class="rack"></i><i id="note2" class="note-paper"></i></div>
+            <div id="labBack" class="fnaf-door door-left" style=""><div class="door-frame"><div class="door-status-light green"></div></div><div class="door-shutter"><div class="slat"></div><div class="slat"></div><div class="slat"></div><div class="slat"></div><div class="slat"></div></div></div>
+        </div>
+
+
+        <!-- CUTSCENE FINAL: O MUNDO EXTERIOR -->
+        <div id="endingScene" class="ending hidden">
+            <!-- Cena 3D renderizada em tempo real (motor próprio em Canvas) -->
+            <canvas id="endCanvas" class="es-canvas"></canvas>
+            <div class="es-vig"></div>
+            <div class="es-bar t"></div><div class="es-bar b"></div>
+            <div id="endCaption" class="es-caption"></div>
+            <div class="es-door"><i class="l"></i><i class="r"></i></div>
+            <div class="es-white"></div>
+            <div class="es-title">
+                <small>CAPÍTULO CONCLUÍDO</small>
+                <h1>VOCÊ SOBREVIVEU</h1>
+                <h2>JOGO CONCLUÍDO</h2>
+                <div class="es-btns"><button id="endRestart">REINICIAR</button><button id="endCredits">VER CRÉDITOS</button></div>
+            </div>
+
+        </div>
+
+        <!-- MÁSCARA DA LANTERNA EM SALAS ESCURAS 2D -->
+        <div id="darkness" class="darkness-overlay hidden"></div>
+
+        <!-- ENTIDADE / MONSTRO EM 2D -->
+        <div id="monster" class="monster hidden">
+            <div class="monster-shadow"></div>
+            <div class="monster-body">
+                <div class="monster-eyes">
+                    <div class="m-eye left"></div>
+                    <div class="m-eye right"></div>
+                </div>
+                <div class="monster-jaw"></div>
+            </div>
+        </div>
+
+        <!-- PERSONAGEM DO JOGADOR EM 2D -->
+        <div id="player" class="player facing-down is-lying">
+            <div class="player-shadow"></div>
+            <div class="player-body">
+                <div class="head">
+                    <div class="hair"></div>
+                    <div class="face">
+                        <div class="eye left"></div>
+                        <div class="eye right"></div>
+                    </div>
+                </div>
+                <div class="torso">
+                    <div class="jacket"></div>
+                    <div class="arm arm-left"><div class="hand"></div></div>
+                    <div class="arm arm-right"><div class="hand"></div></div>
+                </div>
+                <div class="legs">
+                    <div class="leg leg-left"><div class="foot"></div></div>
+                    <div class="leg leg-right"><div class="foot"></div></div>
+                </div>
+            </div>
+        </div>
+
+                <!-- ESPÉCIME 064 (monstro 2D da perseguição) -->
+        <div id="spec064" class="spec hidden">
+            <div class="sp-shadow"></div>
+            <div class="sp-body">
+                <div class="sp-arm sp-armL"><i class="claw"></i><i class="claw"></i><i class="claw"></i></div>
+                <div class="sp-arm sp-armR"><i class="claw"></i><i class="claw"></i><i class="claw"></i></div>
+                <div class="sp-leg sp-legL"></div><div class="sp-leg sp-legR"></div>
+                <div class="sp-torso"><i></i><i></i><i></i></div>
+                <div class="sp-head"><i class="sp-eye l"></i><i class="sp-eye r"></i><div class="sp-jaw"></div></div>
+            </div>
+        </div>
+        <div id="keyItem" class="key-item hidden"><i class="k-ring"></i><i class="k-shaft"></i><i class="k-teeth"></i></div>
+
+        <!-- EFEITOS DO TIRO -->
+        <div id="gunSprite" class="gun-sprite"><i class="g-stock"></i><i class="g-body"></i><i class="g-barrel"></i><i class="g-pump"></i></div>
+        <div id="fxLayer" class="fx-layer"></div>
+        <div id="muzzleFlash" class="muzzle-flash"></div>
+
+        <!-- CENA DE AGARRÃO (game over do Espécime 064) -->
+        <div id="grabScene" class="grab-scene hidden">
+            <div class="gs-bg"></div>
+            <div class="gs-claw l"></div><div class="gs-claw r"></div>
+            <div class="gs-face"><i class="gs-eye l"></i><i class="gs-eye r"></i><div class="gs-mouth"></div></div>
+            <div class="gs-flash"></div>
+            <div class="gs-text">ESPÉCIME 064</div>
+        </div>
+
+        <div id="chaseBanner" class="chase-banner hidden"></div>
+        <button id="fireBtnPc" class="fire-pc hidden">ATIRAR [F]</button>
+
+        <div id="emergencyLight" class="emergency-light hidden"><i class="al-lamp l"></i><i class="al-lamp r"></i></div>
+        <!-- HUD: munição e chave -->
+        <div id="ammoHud" class="ammo-hud hidden"><span id="ammoPart">🔫 ESPINGARDA <b id="ammoCount">0</b>/2</span><span id="keyTag" class="hidden"> &nbsp;🗝 CHAVE</span></div>
+
+        <!-- NARRATIVA E BOTÕES DE AÇÃO -->
+        <div id="storyText" class="story-text"></div>
+        <div id="interaction" class="interaction hidden">
+            <button id="actionButton">INTERAGIR</button>
+        </div>
+
+        <!-- MODAIS DO JOGO -->
+        <div id="recovery" class="modal-overlay hidden">
+            <div class="modal-box">
+                <p class="terminal">TERMINAL // RECOVERY_SYSTEM</p>
+                <h2>RECUPERANDO ARQUIVO...</h2>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div id="progress" class="progress"></div>
+                    </div>
+                    <span id="percentage">0%</span>
+                </div>
+                <p id="recoveryStatus">Inicializando recuperação...</p>
+            </div>
+        </div>
+
+        <div id="paperModal" class="modal-overlay hidden">
+            <div class="paper-document">
+                <div class="paper-header">
+                    <span id="paperTitle">DOCUMENTO CONFIDENCIAL</span>
+                </div>
+                <div class="paper-body-text">
+                    <p id="paperContent"></p>
+                </div>
+                <button id="closePaperButton">FECHAR E CONTINUAR</button>
+            </div>
+        </div>
+
+        <div id="cctvModal" class="modal-overlay hidden">
+            <div class="cctv-box"><div class="cctv"><div class="cv-cell"></div><div class="cv-bars"><b></b><b></b><b></b><b></b><b></b></div><div class="cv-beast"><i></i><i></i></div><div class="cv-flash"></div><div class="cv-noise"></div><span class="cv-hud">● REC · CAM 07 — SELA 064</span><span class="cv-time">INCIDENTE 04 · 03:14:07</span></div><p class="cctv-text">GRAVAÇÃO RECUPERADA: o instante exato em que o Espécime 064 arrancou as barras da sela.</p><button id="closeCctvButton">FECHAR GRAVAÇÃO</button></div>
+        </div>
+
+        <div id="gameOverModal" class="modal-overlay game-over-modal hidden">
+            <div class="game-over-box">
+                <h1 id="goTitle">VOCÊ FOI PEGO</h1>
+                <p id="goText">A entidade alcançou você no corredor escuro...</p>
+                <p id="goHint" class="go-hint"></p>
+                <button id="restartButton">TENTAR NOVAMENTE</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- AVISO DE ROTAÇÃO (só em celular na vertical) -->
+    <div id="rotateHint" class="rotate-hint">📱 Gire o celular para a horizontal para jogar melhor</div>
+
+    <!-- CONTROLES TOUCH (joystick flutuante à esquerda, botões à direita) -->
+    <div id="touchUI" class="touch-ui">
+        <div id="stickZone" class="stick-zone">
+            <div id="stickBase" class="stick-base"><div id="stickKnob" class="stick-knob"></div></div>
+        </div>
+        <div class="touch-btns">
+            <button id="btnAct" class="tbtn tbtn-act">AGIR</button>
+            <button id="btnLook" class="tbtn tbtn-look">OLHAR</button>
+            <button id="btnFire" class="tbtn tbtn-fire">ATIRAR</button>
+            <button id="btnRun" class="tbtn tbtn-run">CORRER</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
